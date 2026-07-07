@@ -1,16 +1,18 @@
 // Pulls the spec and manifesto markdown + figure SVGs from Joule-Standard/spec
 // at build time, so this repo never carries its own stale copy. Pin the ref
-// via SPEC_REF (defaults to the v0.1.0 tag); set GITHUB_TOKEN to raise the
-// GitHub API rate limit for the figures listing.
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+// via SPEC_REF, or by editing .spec-ref (what the spec repo's release
+// workflow bumps automatically on each tag); SPEC_REF wins when both are
+// set, for local overrides. Set GITHUB_TOKEN to raise the GitHub API rate
+// limit for the figures listing.
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const REPO = 'Joule-Standard/spec';
-const REF = process.env.SPEC_REF || 'v0.1.0';
-const RAW_BASE = `https://raw.githubusercontent.com/${REPO}/${REF}/`;
 const rootDir = path.resolve(import.meta.dirname, '..');
 const docsDir = path.join(rootDir, 'src/content/docs');
 const figuresDir = path.join(rootDir, 'public/figures');
+const REF = process.env.SPEC_REF || (await readFile(path.join(rootDir, '.spec-ref'), 'utf8')).trim();
+const RAW_BASE = `https://raw.githubusercontent.com/${REPO}/${REF}/`;
 // Astro's content-layer cache doesn't invalidate when only remark plugins or
 // astro.config.mjs change (only on content changes it notices), so it can
 // silently serve stale pre-rendered markdown. Clearing it here guarantees

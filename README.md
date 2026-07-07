@@ -18,7 +18,7 @@ pnpm preview  # serve the last build of dist/
 - Fetches the figure SVGs into `public/figures/`, adding an `xmlns` attribute if missing (the source files are authored to be inlined in HTML and don't declare one, which some browsers reject when the file is loaded standalone via `<img src>`).
 - Clears Astro's content-layer cache (`node_modules/.astro`). That cache doesn't invalidate on remark-plugin or config changes, only on content changes — without clearing it, edits to the plugins in `src/remark/` can silently render stale output.
 
-Pin the content to a specific tag with `SPEC_REF` (defaults to `v0.1.0`):
+The pinned ref lives in [`.spec-ref`](.spec-ref) (currently `v0.1.0`) — that's what the spec repo's release workflow bumps automatically on each new tag (see Deployment below). Override it locally with `SPEC_REF`, which always wins over the file:
 
 ```
 SPEC_REF=v0.1.1 pnpm build
@@ -45,4 +45,6 @@ They run in that order (see `astro.config.mjs`) because `parts.mjs` regroups wha
 
 ## Deployment
 
-Static output, deployed to Cloudflare Pages (build command `pnpm build`, output directory `dist`). The update pipeline: a GitHub Action in the `spec` repo hits a Cloudflare Pages deploy hook on push to a tag, which triggers a rebuild here — `content:sync` then pulls whatever `SPEC_REF` is pinned to.
+Static output, deployed as a Cloudflare Worker with static assets (see [`wrangler.jsonc`](wrangler.jsonc)) — no server code, `assets.directory` just points at `dist`. Cloudflare's git integration builds and deploys automatically on every push to this repo's `main` (build command `pnpm build`).
+
+The update pipeline: pushing a new tag to the `spec` repo runs a workflow there that bumps `.spec-ref` in this repo to that tag name and pushes the commit — which is what actually triggers the Cloudflare rebuild above. `content:sync` then fetches exactly that pinned tag. Releasing a new spec version is just: tag `spec`, nothing to touch here.

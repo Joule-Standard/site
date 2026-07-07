@@ -1,0 +1,46 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'The Joule Standard — an open protocol for energy-backed currency.' } = Astro.props;
+const path = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="site">
+      <div class="wrap">
+        <a class="brand" href="/">The Joule Standard</a>
+        <a href="/spec" aria-current={path.startsWith('/spec') ? 'page' : undefined}>Specification</a>
+        <a href="/manifesto" aria-current={path.startsWith('/manifesto') ? 'page' : undefined}>Manifesto</a>
+        <a href="https://github.com/Joule-Standard/spec">GitHub</a>
+      </div>
+    </nav>
+    <slot />
+    <footer>
+      <div class="wrap">
+        <p>
+          The Joule Standard · joulestandard.org · CC BY-SA 4.0<br />
+          Specification and manifesto are published from
+          <a href="https://github.com/Joule-Standard/spec">Joule-Standard/spec</a>.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

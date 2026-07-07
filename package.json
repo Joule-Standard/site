@@ -1,0 +1,22 @@
+{
+  "name": "joulestandard-site",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "content:sync": "node scripts/fetch-content.mjs",
+    "dev": "pnpm content:sync && astro dev",
+    "build": "pnpm content:sync && astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "^7.2.1",
+    "astro": "^7.0.6",
+    "unist-util-visit": "^5.0.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "typescript": "^5.7.3"
+  }
+}

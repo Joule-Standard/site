@@ -1,0 +1,126 @@
+:root{
+  --paper:#FAFAF6;
+  --ink:#1B2620;
+  --ink-soft:#4A544E;
+  --muted:#78817B;
+  --amber:#D98E14;
+  --amber-deep:#9C650B;
+  --amber-wash:#FBF3E2;
+  --teal:#1D8A6E;
+  --teal-deep:#0E5C48;
+  --teal-wash:#E7F4EF;
+  --copper:#BE5B36;
+  --copper-deep:#8C3E22;
+  --copper-wash:#F9EDE7;
+  --line:#DCDCD2;
+  --line-strong:#B8B8AA;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --disp:'Space Grotesk',sans-serif;
+  --body:'Newsreader',Georgia,serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:19px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:0 24px}
+a{color:var(--teal-deep);text-decoration-color:var(--line-strong);text-underline-offset:3px}
+a:hover{text-decoration-color:var(--teal)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+/* ---------- site nav ---------- */
+nav.site{border-bottom:1px solid var(--line);font-family:var(--mono);font-size:13px}
+nav.site .wrap{display:flex;gap:22px;align-items:center;padding:18px 24px}
+nav.site a{color:var(--ink-soft);text-decoration:none;letter-spacing:.03em}
+nav.site a:hover,nav.site a[aria-current="page"]{color:var(--copper-deep)}
+nav.site .brand{color:var(--ink);font-weight:500;margin-right:auto}
+
+/* ---------- masthead ---------- */
+header.masthead{padding:56px 0 40px}
+.doc-meta{font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;color:var(--muted);margin-bottom:0}
+.doc-meta strong{color:var(--ink-soft);font-weight:500}
+h1{font-family:var(--disp);font-weight:700;font-size:clamp(40px,7vw,64px);line-height:1.02;letter-spacing:-.02em;margin:0}
+h1 em,h1 .unit{font-style:normal;color:var(--amber-deep)}
+.subtitle{font-family:var(--disp);font-weight:400;font-size:clamp(18px,2.6vw,23px);color:var(--ink-soft);margin-top:16px;max-width:34ch;line-height:1.35}
+.pulse-line{margin-top:36px}
+.masthead-end{margin-bottom:8px}
+@media (prefers-reduced-motion:no-preference){
+  .pulse-line path.flow{stroke-dasharray:6 8;animation:flow 1.8s linear infinite}
+  @keyframes flow{to{stroke-dashoffset:-14}}
+}
+@media print{
+  .pulse-line path.flow{animation:none}
+}
+
+/* ---------- structure ---------- */
+main{padding-top:56px;padding-bottom:40px}
+section.part{padding:56px 0 8px}
+.part-mark{font-family:var(--mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-deep);display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.part-mark::after{content:"";height:1px;flex:1;background:var(--line)}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(28px,4.4vw,38px);line-height:1.12;letter-spacing:-.015em;margin:14px 0 26px}
+h3{font-family:var(--disp);font-weight:500;font-size:22px;line-height:1.25;margin:44px 0 14px}
+h4{font-family:var(--disp);font-weight:500;font-size:17px;margin:30px 0 10px}
+p{margin:0 0 18px;color:var(--ink)}
+p.lede{font-size:22px;line-height:1.55;color:var(--ink);font-weight:500}
+em{font-style:italic}
+strong{font-weight:600}
+ul,ol{margin:0 0 18px 26px}
+li{margin-bottom:10px}
+hr{border:none;border-top:1px solid var(--line);margin:40px 0}
+
+/* ---------- callouts (from remarkCallouts) ---------- */
+.plain{background:var(--amber-wash);border:1px solid #EAD6AC;border-radius:10px;padding:20px 22px 16px;margin:26px 0 30px}
+.plain .tag{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber-deep);display:inline-flex;align-items:center;gap:8px;margin-bottom:10px}
+.plain .tag::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 3px #F3E2BD}
+.plain p{font-family:var(--disp);font-size:16.5px;line-height:1.55;color:#54430F;margin-bottom:8px}
+.plain p:last-child{margin-bottom:0}
+
+.lineage{border-left:2px solid var(--teal);padding:4px 0 4px 20px;margin:26px 0 30px}
+.lineage .tag{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-deep);margin-bottom:8px;display:block}
+.lineage p{font-size:16.5px;line-height:1.6;color:var(--ink-soft);margin-bottom:8px}
+.lineage p:last-child{margin-bottom:0}
+
+/* ---------- figures (from remarkFigures) ---------- */
+figure{margin:36px 0 40px;background:#FFFFFF;border:1px solid var(--line);border-radius:14px;padding:26px 22px 18px;overflow:hidden}
+figure img{display:block;width:100%;height:auto}
+figcaption{font-family:var(--mono);font-size:12.5px;line-height:1.6;color:var(--muted);border-top:1px solid var(--line);margin-top:18px;padding-top:12px}
+figcaption strong{color:var(--ink-soft);font-weight:500}
+
+/* ---------- tables ---------- */
+table{width:100%;border-collapse:collapse;margin:26px 0 34px;font-size:16px}
+th{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;text-align:left;color:var(--muted);font-weight:500;padding:0 14px 10px 0;border-bottom:1px solid var(--line-strong)}
+td{padding:12px 14px 12px 0;border-bottom:1px solid var(--line);vertical-align:top;font-family:var(--disp);font-size:15.5px;line-height:1.5;color:var(--ink)}
+
+/* ---------- failure mode / objection cards (from remarkFailureModes) ---------- */
+.fm{border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:0 0 16px;background:#fff}
+.fm .fm-head{display:flex;align-items:baseline;gap:12px;margin-bottom:8px}
+.fm .fm-num{font-family:var(--mono);font-size:12px;color:var(--copper);letter-spacing:.08em}
+.fm h4{margin:0;font-size:17.5px}
+.fm p{font-size:16.5px;line-height:1.6;color:var(--ink-soft);margin-bottom:8px}
+.fm p:last-child{margin-bottom:0}
+.fm .fix{font-family:var(--disp);font-size:15px;color:var(--teal-deep)}
+.fm .fix b{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;margin-right:6px}
+
+/* ---------- rules & principles ---------- */
+.rule{display:flex;gap:18px;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--line)}
+.rule:last-child{border-bottom:none}
+.rule .r-num{font-family:var(--mono);font-size:13px;color:var(--amber-deep);min-width:34px}
+.rule .r-body{font-family:var(--disp);font-size:16.5px;line-height:1.55}
+.rule .r-body b{font-weight:500}
+.rule .r-body span{color:var(--ink-soft)}
+
+/* ---------- glossary (from remarkGlossary) ---------- */
+dl{margin:26px 0}
+dt{font-family:var(--disp);font-weight:500;font-size:17px;margin-top:20px}
+dd{margin:6px 0 0;font-size:16.5px;line-height:1.6;color:var(--ink-soft)}
+dd .lay{display:block;font-family:var(--disp);font-size:15px;color:var(--amber-deep);margin-top:4px}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--line);margin-top:60px;padding:32px 0 72px}
+footer p{font-family:var(--mono);font-size:12.5px;line-height:1.8;color:var(--muted)}
+
+@media (max-width:640px){
+  body{font-size:17.5px}
+  td:first-child{white-space:normal}
+}
+@media print{
+  figure{break-inside:avoid}
+}

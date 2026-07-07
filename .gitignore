@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.env
+.wrangler/
+/docs/
+
+# fetched at build time from Joule-Standard/spec, see scripts/fetch-content.mjs
+src/content/docs/*.md
+public/figures/*.svg

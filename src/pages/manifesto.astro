@@ -1,0 +1,18 @@
+---
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const entry = await getEntry('docs', 'manifesto');
+if (!entry) {
+  throw new Error('manifesto.md was not found in src/content/docs — run `pnpm content:sync` first.');
+}
+const { Content } = await render(entry);
+---
+
+<BaseLayout title="Energy Is Honest — a companion essay to the Joule Standard">
+  <main>
+    <div class="wrap">
+      <Content />
+    </div>
+  </main>
+</BaseLayout>

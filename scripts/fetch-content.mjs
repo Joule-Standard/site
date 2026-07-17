@@ -2,8 +2,14 @@
 // at build time, so this repo never carries its own stale copy. Pin the ref
 // via SPEC_REF, or by editing .spec-ref (what the spec repo's release
 // workflow bumps automatically on each tag); SPEC_REF wins when both are
-// set, for local overrides. Set GITHUB_TOKEN to raise the GitHub API rate
-// limit for the figures listing.
+// set, for local overrides.
+//
+// Fetches via jsDelivr's GitHub CDN mirror (cdn.jsdelivr.net / data.jsdelivr.com)
+// rather than GitHub's own raw/API endpoints — jsDelivr isn't part of GitHub's
+// rate-limit bucket, so it doesn't need a token and won't 403 under repeated
+// CI builds the way api.github.com does. Its one quirk: the very first
+// request to a ref jsDelivr hasn't mirrored yet can 503 while it fetches from
+// GitHub in the background; retryFetch below rides that out.
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -12,20 +18,26 @@ const rootDir = path.resolve(import.meta.dirname, '..');
 const docsDir = path.join(rootDir, 'src/content/docs');
 const figuresDir = path.join(rootDir, 'public/figures');
 const REF = process.env.SPEC_REF || (await readFile(path.join(rootDir, '.spec-ref'), 'utf8')).trim();
-const RAW_BASE = `https://raw.githubusercontent.com/${REPO}/${REF}/`;
+const RAW_BASE = `https://cdn.jsdelivr.net/gh/${REPO}@${REF}/`;
 // Astro's content-layer cache doesn't invalidate when only remark plugins or
 // astro.config.mjs change (only on content changes it notices), so it can
 // silently serve stale pre-rendered markdown. Clearing it here guarantees
 // every `content:sync` is followed by a fresh render.
 const contentCacheDir = path.join(rootDir, 'node_modules/.astro');
 
-const ghHeaders = process.env.GITHUB_TOKEN
-  ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
-  : {};
+async function retryFetch(url, attempts = 4) {
+  for (let i = 0; i < attempts; i += 1) {
+    const res = await fetch(url);
+    if (res.ok) return res;
+    if (i === attempts - 1) throw new Error(`Fetch failed (${res.status}) for ${url}`);
+    const delayMs = 2 ** i * 1000;
+    console.log(`  ${url} -> ${res.status}, retrying in ${delayMs}ms...`);
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+}
 
 async function fetchText(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Fetch failed (${res.status}) for ${url}`);
+  const res = await retryFetch(url);
   return res.text();
 }
 
@@ -47,21 +59,19 @@ function ensureSvgNamespace(svg) {
 }
 
 async function fetchFigures() {
-  const res = await fetch(
-    `https://api.github.com/repos/${REPO}/contents/assets/figures?ref=${REF}`,
-    { headers: ghHeaders },
+  const res = await retryFetch(
+    `https://data.jsdelivr.com/v1/packages/gh/${REPO}@${REF}?structure=flat`,
   );
-  if (!res.ok) throw new Error(`GitHub API failed (${res.status}) listing assets/figures`);
-  const entries = await res.json();
+  const { files } = await res.json();
+  const figures = files.filter((f) => f.name.startsWith('/assets/figures/') && f.name.endsWith('.svg'));
 
   await Promise.all(
-    entries
-      .filter((entry) => entry.type === 'file')
-      .map(async (entry) => {
-        const svg = ensureSvgNamespace(await fetchText(entry.download_url));
-        await writeFile(path.join(figuresDir, entry.name), svg, 'utf8');
-        console.log(`  wrote public/figures/${entry.name}`);
-      }),
+    figures.map(async (f) => {
+      const name = f.name.split('/').pop();
+      const svg = ensureSvgNamespace(await fetchText(`${RAW_BASE}${f.name.slice(1)}`));
+      await writeFile(path.join(figuresDir, name), svg, 'utf8');
+      console.log(`  wrote public/figures/${name}`);
+    }),
   );
 }
 

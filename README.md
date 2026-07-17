@@ -18,6 +18,8 @@ pnpm preview  # serve the last build of dist/
 - Fetches the figure SVGs into `public/figures/`, adding an `xmlns` attribute if missing (the source files are authored to be inlined in HTML and don't declare one, which some browsers reject when the file is loaded standalone via `<img src>`).
 - Clears Astro's content-layer cache (`node_modules/.astro`). That cache doesn't invalidate on remark-plugin or config changes, only on content changes — without clearing it, edits to the plugins in `src/remark/` can silently render stale output.
 
+All of this fetches through [jsDelivr's GitHub CDN mirror](https://www.jsdelivr.com/documentation#id-github) (`cdn.jsdelivr.net` / `data.jsdelivr.com`), not GitHub's own raw/API endpoints — that isn't part of GitHub's rate-limit bucket, so repeated CI builds don't 403 and no token is needed. Its one quirk: the very first request to a ref jsDelivr hasn't mirrored yet can briefly 503 while it fetches from GitHub in the background; the script retries with backoff to ride that out.
+
 The pinned ref lives in [`.spec-ref`](.spec-ref) (currently `v0.1.0`) — that's what the spec repo's release workflow bumps automatically on each new tag (see Deployment below). Override it locally with `SPEC_REF`, which always wins over the file:
 
 ```

@@ -20,7 +20,7 @@ pnpm preview  # serve the last build of dist/
 
 All of this fetches through [jsDelivr's GitHub CDN mirror](https://www.jsdelivr.com/documentation#id-github) (`cdn.jsdelivr.net` / `data.jsdelivr.com`), not GitHub's own raw/API endpoints — that isn't part of GitHub's rate-limit bucket, so repeated CI builds don't 403 and no token is needed. Its one quirk: the very first request to a ref jsDelivr hasn't mirrored yet can briefly 503 while it fetches from GitHub in the background; the script retries with backoff to ride that out.
 
-The pinned ref lives in [`.spec-ref`](.spec-ref) (currently `v0.1.0`) — that's what the spec repo's release workflow bumps automatically on each new tag (see Deployment below). Override it locally with `SPEC_REF`, which always wins over the file:
+The pinned ref lives in [`.spec-ref`](.spec-ref) — that's what the spec repo's release workflow bumps automatically on each new tag (see Deployment below). Override it locally with `SPEC_REF`, which always wins over the file:
 
 ```
 SPEC_REF=v0.1.1 pnpm build
@@ -49,4 +49,18 @@ They run in that order (see `astro.config.mjs`) because `parts.mjs` regroups wha
 
 Static output, deployed as a Cloudflare Worker with static assets (see [`wrangler.jsonc`](wrangler.jsonc)) — no server code, `assets.directory` just points at `dist`. Cloudflare's git integration builds and deploys automatically on every push to this repo's `main` (build command `pnpm build`).
 
-The update pipeline: pushing a new tag to the `spec` repo runs a workflow there that bumps `.spec-ref` in this repo to that tag name and pushes the commit — which is what actually triggers the Cloudflare rebuild above. `content:sync` then fetches exactly that pinned tag. Releasing a new spec version is just: tag `spec`, nothing to touch here.
+### Release pipeline
+
+Releasing a new spec version is: **push a `v*` tag to `Joule-Standard/spec`.** Nothing to touch in this repo. That triggers:
+
+1. **`spec` repo**: [`.github/workflows/bump-site.yml`](https://github.com/Joule-Standard/spec/blob/main/.github/workflows/bump-site.yml) runs on the tag push. It checks out this repo (using a `SITE_REPO_TOKEN` secret stored on the `spec` repo — a fine-grained PAT scoped only to `Joule-Standard/site`, Contents: read/write), rewrites `.spec-ref` to the new tag name, and pushes.
+2. **This repo**: that push (authored by `github-actions[bot]`) lands on `main` like any other commit.
+3. **Cloudflare**: its git integration sees the push and rebuilds automatically. `content:sync` reads the freshly-bumped `.spec-ref` and fetches exactly that tag via jsDelivr (see above).
+
+So the full chain is: `spec` tag → GitHub Action → commit here → Cloudflare build → live. Each step is independently inspectable if something goes wrong:
+
+- Did the tag trigger the workflow? `gh run list --repo Joule-Standard/spec --workflow=bump-site.yml`
+- Did it push the bump commit? `gh api repos/Joule-Standard/site/commits/main` should show a recent `github-actions[bot]` commit.
+- Did Cloudflare build and deploy it? Check the Worker's **Deployments** tab in the Cloudflare dashboard — build logs live there if it failed.
+
+No Cloudflare-side build variables should be needed for normal operation (we briefly used a temporary `SPEC_REF=main` override while bootstrapping this pipeline — it's been removed).
